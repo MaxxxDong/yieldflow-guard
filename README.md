@@ -27,6 +27,7 @@ Early yield assets need instant-exit liquidity, but LPs need transparent compens
 - [Implementation Plan](docs/implementation-plan.md)
 - [Submission Kit](docs/submission-kit.md)
 - [Submission Plan](docs/submission-plan.md)
+- [Submission Results](docs/submission-results.md)
 - [Submission Assets](submission/social/x-thread.md)
 
 ## Build And Test
