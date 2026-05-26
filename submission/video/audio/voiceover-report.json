@@ -1,0 +1,34 @@
+[
+  {
+    "video": "renders/full-demo.mp4",
+    "audio": "audio/full-demo-voiceover.mp3",
+    "voice": "Microsoft Zira Desktop",
+    "rate": 0,
+    "videoSeconds": 89.92,
+    "audioSeconds": 89.92
+  },
+  {
+    "video": "renders/segment-01-mechanism.mp4",
+    "audio": "audio/segment-01-mechanism-voiceover.mp3",
+    "voice": "Microsoft Zira Desktop",
+    "rate": 0,
+    "videoSeconds": 23.2,
+    "audioSeconds": 23.2
+  },
+  {
+    "video": "renders/segment-02-onchain-proof.mp4",
+    "audio": "audio/segment-02-onchain-proof-voiceover.mp3",
+    "voice": "Microsoft Zira Desktop",
+    "rate": 0,
+    "videoSeconds": 25.88,
+    "audioSeconds": 25.88
+  },
+  {
+    "video": "renders/segment-03-market-path.mp4",
+    "audio": "audio/segment-03-market-path-voiceover.mp3",
+    "voice": "Microsoft Zira Desktop",
+    "rate": 0,
+    "videoSeconds": 13.88,
+    "audioSeconds": 13.88
+  }
+]

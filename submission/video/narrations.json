@@ -1,0 +1,50 @@
+[
+  {
+    "id": "open",
+    "segment": "segment-01",
+    "durationMs": 9000,
+    "voiceover": "YieldFlow Guard is a Uniswap v4 Hook on X Layer for pricing exit pressure in yield-position pools."
+  },
+  {
+    "id": "problem",
+    "segment": "segment-01",
+    "durationMs": 12000,
+    "voiceover": "Early yield pools need instant exits, but liquidity providers take concentrated risk when everyone exits the yield token at once."
+  },
+  {
+    "id": "mechanism",
+    "segment": "segment-01",
+    "durationMs": 14000,
+    "voiceover": "The Hook quotes a dynamic fee before each swap and updates net exit pressure after the swap. Balanced flow pays base fee, worsening exit pressure pays more, and rebalancing flow pays less."
+  },
+  {
+    "id": "deployment",
+    "segment": "segment-02",
+    "durationMs": 12000,
+    "voiceover": "The Hook and demo pool are deployed on X Layer mainnet, chain ID 196, with verifiable addresses and transactions."
+  },
+  {
+    "id": "pool",
+    "segment": "segment-02",
+    "durationMs": 12000,
+    "voiceover": "The demo uses a static yield-position pair, st-yUSDG over USDG, connected through a minimal router and the Uniswap v4 PoolManager."
+  },
+  {
+    "id": "swaps",
+    "segment": "segment-02",
+    "durationMs": 17000,
+    "voiceover": "Three real swaps trigger three fee paths: base fee 500, high exit-pressure fee 3000, and rebalancing fee 100."
+  },
+  {
+    "id": "state",
+    "segment": "segment-03",
+    "durationMs": 12000,
+    "voiceover": "The final hook state records net exit pressure at 110e18 and last fee at 100 because the final trade reduced exit pressure."
+  },
+  {
+    "id": "market",
+    "segment": "segment-03",
+    "durationMs": 14000,
+    "voiceover": "The market path is safer liquidity bootstrapping for X Layer yield wrappers, static yield assets, and stable yield pools."
+  }
+]

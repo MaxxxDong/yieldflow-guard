@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YieldFlow Guard Demo Video</title>
+  <style>
+    :root {
+      --bg: #08100f;
+      --panel: #111a18;
+      --panel-2: #162320;
+      --ink: #f4fbf8;
+      --muted: #9db2aa;
+      --line: #29413b;
+      --cyan: #56d7ff;
+      --green: #85f2b5;
+      --amber: #ffd166;
+      --coral: #ff6b6b;
+      --violet: #b497ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        linear-gradient(135deg, #06100f 0%, #0e1715 42%, #17191d 100%);
+      color: var(--ink);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .shell {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .stage {
+      position: relative;
+      width: min(100vw - 48px, calc((100vh - 48px) * 16 / 9));
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border: 1px solid rgba(133, 242, 181, 0.24);
+      background: var(--bg);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.18;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 54px 54px;
+      pointer-events: none;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 28px;
+      padding: 64px 78px 54px;
+      opacity: 0;
+      transform: translateY(18px) scale(0.985);
+      transition: opacity 420ms ease, transform 420ms ease;
+      pointer-events: none;
+    }
+
+    .scene.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .kicker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      color: var(--muted);
+      font-size: 18px;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .badge-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .badge {
+      border: 1px solid rgba(86, 215, 255, 0.34);
+      color: var(--cyan);
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: rgba(86, 215, 255, 0.08);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      font-size: 86px;
+      line-height: 0.95;
+      letter-spacing: 0;
+      max-width: 1050px;
+    }
+
+    h2 {
+      font-size: 62px;
+      line-height: 1;
+      letter-spacing: 0;
+      max-width: 1100px;
+    }
+
+    h3 {
+      font-size: 28px;
+      line-height: 1.1;
+      color: var(--green);
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 980px;
+      color: #d8e8e2;
+      font-size: 31px;
+      line-height: 1.32;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .card {
+      border: 1px solid rgba(157, 178, 170, 0.18);
+      background: linear-gradient(180deg, rgba(22, 35, 32, 0.96), rgba(13, 23, 21, 0.96));
+      border-radius: 8px;
+      padding: 26px;
+      min-height: 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .metric {
+      display: grid;
+      gap: 8px;
+      padding: 22px;
+      border-left: 5px solid var(--green);
+      background: rgba(133, 242, 181, 0.08);
+    }
+
+    .metric strong {
+      font-size: 40px;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr 52px 1fr 52px 1fr;
+      align-items: center;
+      gap: 16px;
+      margin-top: 26px;
+    }
+
+    .flow-node {
+      min-height: 150px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      border: 1px solid var(--line);
+      background: rgba(8, 16, 15, 0.72);
+      border-radius: 8px;
+      padding: 18px;
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .arrow {
+      color: var(--amber);
+      font-size: 42px;
+      text-align: center;
+    }
+
+    .fee-ladder {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    .fee {
+      border-radius: 8px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .fee .value {
+      display: block;
+      font-size: 46px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .fee .label {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
+    .fee.low .value { color: var(--green); }
+    .fee.base .value { color: var(--cyan); }
+    .fee.high .value { color: var(--coral); }
+
+    .address {
+      font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 19px;
+      line-height: 1.5;
+      word-break: break-all;
+      color: #ecfff6;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 18px;
+      margin-bottom: 9px;
+      text-transform: uppercase;
+    }
+
+    .tx-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .tx {
+      display: grid;
+      grid-template-columns: 96px 1fr 110px;
+      gap: 16px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px 18px;
+      background: rgba(255,255,255,0.035);
+    }
+
+    .tx .fee-tag {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--ink);
+      padding: 11px 8px;
+      border-radius: 8px;
+      background: rgba(86, 215, 255, 0.14);
+    }
+
+    .tx:nth-child(2) .fee-tag { background: rgba(255, 107, 107, 0.16); }
+    .tx:nth-child(3) .fee-tag { background: rgba(133, 242, 181, 0.16); }
+
+    .tx code {
+      color: #d7eee7;
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 18px;
+      word-break: break-all;
+    }
+
+    .tx strong {
+      color: var(--amber);
+      font-size: 18px;
+    }
+
+    .bars {
+      height: 330px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: end;
+      gap: 22px;
+      padding: 20px 12px 0;
+    }
+
+    .bar {
+      position: relative;
+      border-radius: 8px 8px 0 0;
+      min-height: 42px;
+      background: linear-gradient(180deg, var(--cyan), rgba(86, 215, 255, 0.3));
+    }
+
+    .bar.exit { height: 82%; background: linear-gradient(180deg, var(--coral), rgba(255, 107, 107, 0.28)); }
+    .bar.base { height: 38%; }
+    .bar.rebalance { height: 24%; background: linear-gradient(180deg, var(--green), rgba(133, 242, 181, 0.24)); }
+
+    .bar span {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -45px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .state-table {
+      display: grid;
+      gap: 16px;
+    }
+
+    .state-row {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 18px;
+      align-items: center;
+      padding: 22px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .state-row strong {
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .state-row code {
+      color: var(--green);
+      font-family: "Cascadia Mono", Consolas, monospace;
+      font-size: 31px;
+      font-weight: 900;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .progress {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 5px;
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      z-index: 10;
+    }
+
+    .progress > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--green), var(--cyan), var(--amber));
+      transition: width 280ms linear;
+    }
+
+    .controls {
+      position: absolute;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: flex;
+      gap: 10px;
+      padding: 9px;
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 8px;
+      background: rgba(4, 9, 8, 0.82);
+      backdrop-filter: blur(12px);
+    }
+
+    .controls button {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--ink);
+      background: rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 10px 13px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .controls button:hover { background: rgba(133, 242, 181, 0.14); }
+
+    body.recording .controls { display: none; }
+    body.recording .stage { border: none; box-shadow: none; width: 100vw; height: 100vh; }
+
+    .pulse {
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main class="stage" aria-label="YieldFlow Guard video presentation">
+      <section class="scene active" data-scene="0" data-segment="segment-01">
+        <header class="kicker">
+          <span>Hook the Future submission</span>
+          <div class="badge-row">
+            <span class="badge">Uniswap v4 Hook</span>
+            <span class="badge">X Layer mainnet</span>
+            <span class="badge">Dynamic fees</span>
+          </div>
+        </header>
+        <div>
+          <h1>YieldFlow Guard</h1>
+          <p class="lead" style="margin-top: 28px;">A Hook that prices exit pressure for static yield-position pools.</p>
+          <div class="fee-ladder" style="max-width: 920px;">
+            <div class="fee base"><span class="value">500</span><span class="label">base fee for normal exits</span></div>
+            <div class="fee high"><span class="value">3000</span><span class="label">higher fee when exit pressure worsens</span></div>
+            <div class="fee low"><span class="value">100</span><span class="label">lower fee when flow rebalances</span></div>
+          </div>
+        </div>
+        <footer class="footer"><span>Segment 1: mechanism</span><span>st-yUSDG / USDG demo pool</span></footer>
+      </section>
+
+      <section class="scene" data-scene="1" data-segment="segment-01">
+        <header class="kicker"><span>Problem</span><span>Yield liquidity needs exits and LP protection</span></header>
+        <div class="grid-2">
+          <div>
+            <h2>Exit demand can become one-sided.</h2>
+            <p class="lead" style="margin-top: 24px;">Early yield pools often need instant exits before liquidity is deep. When everyone sells the yield token into the base asset, LP inventory risk increases.</p>
+            <div class="metric" style="margin-top: 34px;">
+              <strong>Risk should be priced where it appears.</strong>
+              <span>The pool can quote a higher fee when flow worsens exit pressure and a lower fee when flow restores balance.</span>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Flow imbalance</h3>
+            <div class="bars">
+              <div class="bar base"><span>normal</span></div>
+              <div class="bar exit"><span>exit crowding</span></div>
+              <div class="bar rebalance"><span>rebalance</span></div>
+            </div>
+          </div>
+        </div>
+        <footer class="footer"><span>LP fee becomes a risk signal</span><span>Not a static tier</span></footer>
+      </section>
+
+      <section class="scene" data-scene="2" data-segment="segment-01">
+        <header class="kicker"><span>Hook logic</span><span>beforeSwap + afterSwap</span></header>
+        <div>
+          <h2>The Hook turns flow into a fee quote.</h2>
+          <div class="flow">
+            <div class="flow-node">Trader sends swap</div>
+            <div class="arrow">-></div>
+            <div class="flow-node pulse">beforeSwap quotes fee</div>
+            <div class="arrow">-></div>
+            <div class="flow-node">afterSwap updates pressure</div>
+          </div>
+          <div class="fee-ladder">
+            <div class="fee base"><span class="value">base</span><span class="label">balanced or first exit flow</span></div>
+            <div class="fee high"><span class="value">higher</span><span class="label">net exit pressure increases</span></div>
+            <div class="fee low"><span class="value">lower</span><span class="label">trade reduces exit pressure</span></div>
+          </div>
+        </div>
+        <footer class="footer"><span>State is kept per pool ID</span><span>Fee override is visible in swap events</span></footer>
+      </section>
+
+      <section class="scene" data-scene="3" data-segment="segment-02">
+        <header class="kicker"><span>Deployment</span><span>X Layer mainnet, chain ID 196</span></header>
+        <div class="grid-2">
+          <div>
+            <h2>Deployed and verifiable on X Layer.</h2>
+            <p class="lead" style="margin-top: 24px;">The submission includes a live Hook, demo router, mock static yield-position token, base token, v4 pool configuration, liquidity, and triggered swaps.</p>
+          </div>
+          <div class="card">
+            <div class="label">Hook address</div>
+            <div class="address">0x7B8Ae07b6eeC3a82109644501E45837559Db54c0</div>
+            <div class="label" style="margin-top: 24px;">Demo pool ID</div>
+            <div class="address">0x19fcbf9649578188e26718f7c88010beed42a1b9bafe6a5c7780947a34943955</div>
+            <div class="label" style="margin-top: 24px;">PoolManager</div>
+            <div class="address">0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32</div>
+          </div>
+        </div>
+        <footer class="footer"><span>Segment 2: on-chain proof</span><span>Explorer: OKX X Layer</span></footer>
+      </section>
+
+      <section class="scene" data-scene="4" data-segment="segment-02">
+        <header class="kicker"><span>Demo pool</span><span>st-yUSDG / USDG</span></header>
+        <div>
+          <h2>A static yield-position pair with a minimal router.</h2>
+          <div class="flow">
+            <div class="flow-node">DemoRouter</div>
+            <div class="arrow">-></div>
+            <div class="flow-node">Uniswap v4 PoolManager</div>
+            <div class="arrow">-></div>
+            <div class="flow-node pulse">YieldFlowGuardHook</div>
+          </div>
+          <div class="grid-3" style="margin-top: 28px;">
+            <div class="card"><h3>Pair</h3><p class="lead" style="font-size: 25px; margin-top: 12px;">st-yUSDG / USDG mock static yield-position pool.</p></div>
+            <div class="card"><h3>Setup</h3><p class="lead" style="font-size: 25px; margin-top: 12px;">Configured, initialized at 1:1, then full-range liquidity added.</p></div>
+            <div class="card"><h3>Trigger</h3><p class="lead" style="font-size: 25px; margin-top: 12px;">Three swaps exercise base, high, and low dynamic fee paths.</p></div>
+          </div>
+        </div>
+        <footer class="footer"><span>DemoRouter: 0xf166...C91f</span><span>Tokens: USDG and st-yUSDG</span></footer>
+      </section>
+
+      <section class="scene" data-scene="5" data-segment="segment-02">
+        <header class="kicker"><span>Swap evidence</span><span>Real transactions triggered Hook behavior</span></header>
+        <div>
+          <h2>Three swaps, three fee outcomes.</h2>
+          <div class="tx-list" style="margin-top: 28px;">
+            <div class="tx">
+              <div class="fee-tag">500</div>
+              <code>0xaa0092fb40d120369f2169bcca345e5c6116a3ac28024b9edf9c0711260689bf</code>
+              <strong>base exit</strong>
+            </div>
+            <div class="tx">
+              <div class="fee-tag">3000</div>
+              <code>0x356d9ae6bde524d614b784d648a24541db043eeac8f1b4d99aef2c3a05b9c762</code>
+              <strong>worse exit</strong>
+            </div>
+            <div class="tx">
+              <div class="fee-tag">100</div>
+              <code>0x6d7cd050adc2260487069074a70cefe63acd8747ef1ed668b0cd48f894289619</code>
+              <strong>rebalance</strong>
+            </div>
+          </div>
+        </div>
+        <footer class="footer"><span>Fee path: 500 -> 3000 -> 100</span><span>Hook events: FeeQuoted + FlowObserved</span></footer>
+      </section>
+
+      <section class="scene" data-scene="6" data-segment="segment-03">
+        <header class="kicker"><span>Final hook state</span><span>State persisted on-chain</span></header>
+        <div class="grid-2">
+          <div>
+            <h2>The last trade reduced pressure.</h2>
+            <p class="lead" style="margin-top: 24px;">After the sequence, the pool still has net exit pressure, but the latest swap rebalanced flow. The Hook records this and quotes the minimum fee for that path.</p>
+          </div>
+          <div class="card state-table">
+            <div class="state-row"><strong>netExitPressure</strong><code>110e18</code></div>
+            <div class="state-row"><strong>lastFee</strong><code>100</code></div>
+            <div class="state-row"><strong>lastUpdatedBlock</strong><code>61009807</code></div>
+          </div>
+        </div>
+        <footer class="footer"><span>Segment 3: market path</span><span>Demonstrable Hook state</span></footer>
+      </section>
+
+      <section class="scene" data-scene="7" data-segment="segment-03">
+        <header class="kicker"><span>Market value</span><span>Safer liquidity bootstrapping for X Layer yield assets</span></header>
+        <div>
+          <h2>From mock static pair to real yield wrappers.</h2>
+          <div class="grid-3" style="margin-top: 32px;">
+            <div class="card"><h3>LPs</h3><p class="lead" style="font-size: 25px; margin-top: 12px;">Get paid more when exit pressure concentrates.</p></div>
+            <div class="card"><h3>Routers</h3><p class="lead" style="font-size: 25px; margin-top: 12px;">Can read a transparent fee signal from v4 behavior.</p></div>
+            <div class="card"><h3>X Layer</h3><p class="lead" style="font-size: 25px; margin-top: 12px;">Gets a reusable pattern for yield, stable, and wrapper liquidity.</p></div>
+          </div>
+          <p class="lead" style="margin-top: 34px;">Submission-ready: new Hook logic, deployed pool, live swaps, tests, docs, video, and social assets.</p>
+        </div>
+        <footer class="footer"><span>YieldFlow Guard</span><span>@XLayerOfficial @Uniswap @flapdotsh #BuildX</span></footer>
+      </section>
+
+      <div class="progress"><div id="progressBar"></div></div>
+      <nav class="controls" aria-label="Presentation controls">
+        <button id="prevBtn" type="button">Prev</button>
+        <button id="playBtn" type="button">Play</button>
+        <button id="nextBtn" type="button">Next</button>
+        <button data-jump="segment-01" type="button">S1</button>
+        <button data-jump="segment-02" type="button">S2</button>
+        <button data-jump="segment-03" type="button">S3</button>
+      </nav>
+    </main>
+  </div>
+
+  <script>
+    const narrations = [
+      { id: "open", segment: "segment-01", durationMs: 9000 },
+      { id: "problem", segment: "segment-01", durationMs: 12000 },
+      { id: "mechanism", segment: "segment-01", durationMs: 14000 },
+      { id: "deployment", segment: "segment-02", durationMs: 12000 },
+      { id: "pool", segment: "segment-02", durationMs: 12000 },
+      { id: "swaps", segment: "segment-02", durationMs: 17000 },
+      { id: "state", segment: "segment-03", durationMs: 12000 },
+      { id: "market", segment: "segment-03", durationMs: 14000 }
+    ];
+
+    const segmentRanges = {
+      "full": [0, narrations.length - 1],
+      "segment-01": [0, 2],
+      "segment-02": [3, 5],
+      "segment-03": [6, 7]
+    };
+
+    const scenes = Array.from(document.querySelectorAll(".scene"));
+    const progressBar = document.getElementById("progressBar");
+    const playBtn = document.getElementById("playBtn");
+    const params = new URLSearchParams(location.search);
+    const recordMode = params.get("record");
+    const selectedSegment = params.get("segment") || "full";
+    let range = segmentRanges[selectedSegment] || segmentRanges.full;
+    let current = range[0];
+    let playing = false;
+    let timer = null;
+    window.__demoDone = false;
+
+    function show(index) {
+      current = Math.max(range[0], Math.min(range[1], index));
+      scenes.forEach((scene, i) => scene.classList.toggle("active", i === current));
+      const denom = Math.max(1, range[1] - range[0]);
+      progressBar.style.width = `${((current - range[0]) / denom) * 100}%`;
+    }
+
+    function stop() {
+      playing = false;
+      clearTimeout(timer);
+      playBtn.textContent = "Play";
+    }
+
+    function step() {
+      clearTimeout(timer);
+      if (current >= range[1]) {
+        progressBar.style.width = "100%";
+        stop();
+        window.__demoDone = true;
+        return;
+      }
+      timer = setTimeout(() => {
+        show(current + 1);
+        step();
+      }, narrations[current].durationMs);
+    }
+
+    function play() {
+      if (playing) {
+        stop();
+        return;
+      }
+      window.__demoDone = false;
+      playing = true;
+      playBtn.textContent = "Pause";
+      step();
+    }
+
+    document.getElementById("prevBtn").addEventListener("click", () => { stop(); show(current - 1); });
+    document.getElementById("nextBtn").addEventListener("click", () => { stop(); show(current + 1); });
+    playBtn.addEventListener("click", play);
+    document.querySelectorAll("[data-jump]").forEach((button) => {
+      button.addEventListener("click", () => {
+        stop();
+        range = segmentRanges[button.dataset.jump];
+        show(range[0]);
+      });
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight") { stop(); show(current + 1); }
+      if (event.key === "ArrowLeft") { stop(); show(current - 1); }
+      if (event.key === " ") { event.preventDefault(); play(); }
+    });
+
+    if (recordMode) {
+      document.body.classList.add("recording");
+      show(range[0]);
+      setTimeout(play, 600);
+    } else {
+      show(current);
+    }
+  </script>
+</body>
+</html>

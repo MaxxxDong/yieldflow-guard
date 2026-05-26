@@ -1,0 +1,21 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Foundry output and local caches
+out/
+cache/
+broadcast/
+.forge-snapshots/
+
+# Local dependencies and binaries
+lib/
+tools/
+node_modules/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
